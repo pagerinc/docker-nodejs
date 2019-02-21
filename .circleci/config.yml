@@ -5,10 +5,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Build image"
-          command: docker build -t pagerinc/node:$CIRCLE_SHA1 6.11
+          name: "Build v10-alpine image"
+          command: docker build -t pagerinc/node:${CIRCLE_SHA1}-alpine v10-alpine
+      - run:
+          name: "Build v10-alpine-slim image"
+          command: docker build -t pagerinc/node:${CIRCLE_SHA1}-alpine-slim v10-alpine-slim
       - run: |
           docker create -v /tmp/test --name test alpine:3.8 /bin/true
-          docker cp test/tests.bats test:/tmp/test
+          docker cp test/v10.bats test:/tmp/test
           docker cp test/run.sh test:/tmp/test
-          docker run -t --volumes-from test pagerinc/node:$CIRCLE_SHA1 '/tmp/test/run.sh'
+          docker run -t --volumes-from test pagerinc/node:${CIRCLE_SHA1}-alpine '/tmp/test/run.sh'
+          docker run -t --volumes-from test pagerinc/node:${CIRCLE_SHA1}-alpine-slim '/tmp/test/run.sh'
